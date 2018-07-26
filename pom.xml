@@ -1,8 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
+<!--
+ Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
+
+ This program and the accompanying materials are made available under the
+ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ and is available at http://www.eclipse.org/legal/epl-v10.html
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>eu.5ginfire.nbi.osm4java</groupId>
-  <artifactId>eu.5ginfire.nbi.osm4java</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <name>eu.5ginfire.nbi.osm4java</name>
-  <description>NBI Java client implementation for OSM FOUR</description>
+
+    <modelVersion>4.0.0</modelVersion>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>opendaylight-release</id>
+			<name>opendaylight-release</name>
+			<url>https://nexus.opendaylight.org/content/repositories/opendaylight.release/</url>
+		</pluginRepository>
+		<pluginRepository>
+			<id>opendaylight-snapshot</id>
+			<name>opendaylight-snapshot</name>
+			<url>https://nexus.opendaylight.org/content/repositories/opendaylight.snapshot/</url>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<repositories>
+		<repository>
+			<id>opendaylight-release</id>
+			<name>opendaylight-release</name>
+			<url>https://nexus.opendaylight.org/content/repositories/opendaylight.release/</url>
+		</repository>
+		<repository>
+			<id>opendaylight-snapshot</id>
+			<name>opendaylight-snapshot</name>
+			<url>https://nexus.opendaylight.org/content/repositories/opendaylight.snapshot/</url>
+		</repository>
+	</repositories>
+	    
+	<groupId>Yang-Parser-Windows</groupId>
+	<artifactId>Yang-Parser-Windows</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+
+    <properties>
+	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <salGeneratorPath>${project.build.directory}/generated-sources/mdsal-binding</salGeneratorPath>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	    <maven.compiler.source>1.7</maven.compiler.source>
+	    <maven.compiler.target>1.7</maven.compiler.target>
+    </properties>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.opendaylight.yangtools</groupId>
+				<artifactId>yangtools-artifacts</artifactId>
+				<version>2.0.7</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	
+	<dependencies>
+		<dependency>
+		    <groupId>com.google.code.findbugs</groupId>
+		    <artifactId>jsr305</artifactId>
+		    <version>3.0.2</version>
+		</dependency>	
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>yang-common</artifactId>
+            <version>2.0.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>yang-binding</artifactId>
+            <version>0.6.1</version>        
+        </dependency>
+		<dependency>
+			<groupId>org.opendaylight.mdsal</groupId>
+			<artifactId>yang-binding</artifactId>
+            <version>0.13.0-SNAPSHOT</version>
+		</dependency>
+        		
+	</dependencies>
+	
+    <build>
+        <!-- https://bugs.opendaylight.org/show_bug.cgi?id=6252 -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${project.build.directory}/generated-sources/spi</directory>
+            </resource>
+            <resource>
+                <directory>${project.build.directory}/generated-sources/yang</directory>
+            </resource>
+        </resources>
+    </build>
+
+    <profiles>
+        <profile>
+            <activation>
+                <file>
+                    <exists>src/main/yang</exists>
+                </file>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+					    <plugin>
+					        <artifactId>maven-compiler-plugin</artifactId>
+					        <configuration>
+					            <source>1.7</source>
+					            <target>1.7</target>
+					        </configuration>
+					    </plugin>                    
+                        <plugin>
+                            <groupId>org.opendaylight.yangtools</groupId>
+                            <artifactId>yang-maven-plugin</artifactId>
+                            <version>2.0.7</version>
+                            <dependencies>
+                                <dependency>
+                                    <groupId>org.opendaylight.mdsal</groupId>
+                                    <artifactId>maven-sal-api-gen-plugin</artifactId>
+                                    <version>0.13.0-SNAPSHOT</version>
+                                    <type>jar</type>
+                                </dependency>
+                            </dependencies>
+                            <executions>
+                                <execution>
+                                    <id>binding</id>
+                                    <goals>
+                                        <goal>generate-sources</goal>
+                                    </goals>
+                                    <configuration>
+                                        <codeGenerators>
+                                            <generator>
+                                                <codeGeneratorClass>org.opendaylight.mdsal.binding.maven.api.gen.plugin.CodeGeneratorImpl</codeGeneratorClass>
+                                                <outputBaseDir>${salGeneratorPath}</outputBaseDir>
+                                                <resourceBaseDir>${project.build.directory}/generated-sources/spi</resourceBaseDir>
+                                            </generator>
+                                        </codeGenerators>
+                                        <inspectDependencies>true</inspectDependencies>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
+                        <plugin>
+                            <artifactId>maven-clean-plugin</artifactId>
+                            <configuration>
+                                <filesets>
+                                    <fileset>
+                                        <directory>${salGeneratorPath}</directory>
+                                        <includes>
+                                            <include>**</include>
+                                        </includes>
+                                    </fileset>
+                                </filesets>
+                            </configuration>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>build-helper-maven-plugin</artifactId>
+                            <executions>
+                                <execution>
+                                    <id>add-yang-sources</id>
+                                    <phase>generate-sources</phase>
+                                    <goals>
+                                        <goal>add-source</goal>
+                                    </goals>
+                                    <configuration>
+                                        <sources>
+                                            <source>${salGeneratorPath}</source>
+                                        </sources>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
+
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-pmd-plugin</artifactId>
+                            <executions>
+                                <execution>
+                                    <id>cpd</id>
+                                    <phase>process-sources</phase>
+                                    <goals>
+                                        <goal>cpd-check</goal>
+                                    </goals>
+                                    <configuration>
+                                        <excludeRoots>
+                                            <excludeRoot>${salGeneratorPath}</excludeRoot>
+                                        </excludeRoots>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+                <plugins>
+                    <plugin>
+                        <groupId>org.opendaylight.yangtools</groupId>
+                        <artifactId>yang-maven-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>3.0.0</version>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
