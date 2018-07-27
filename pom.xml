@@ -37,8 +37,8 @@
 		</repository>
 	</repositories>
 	    
-	<groupId>Yang-Parser-Windows</groupId>
-	<artifactId>Yang-Parser-Windows</artifactId>
+	<groupId>eu.5ginfire.nbi.osm4java</groupId>
+	<artifactId>eu.5ginfire.nbi.osm4java</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
     <properties>
@@ -71,11 +71,6 @@
             <artifactId>yang-common</artifactId>
             <version>2.0.7</version>
         </dependency>
-        <dependency>
-            <groupId>org.opendaylight.yangtools</groupId>
-            <artifactId>yang-binding</artifactId>
-            <version>0.6.1</version>        
-        </dependency>
 		<dependency>
 			<groupId>org.opendaylight.mdsal</groupId>
 			<artifactId>yang-binding</artifactId>
@@ -99,7 +94,7 @@
         </resources>
     </build>
 
-    <profiles>
+   <!--  <profiles>
         <profile>
             <activation>
                 <file>
@@ -212,5 +207,5 @@
                 </plugins>
             </build>
         </profile>
-    </profiles>
+    </profiles> -->
 </project>
