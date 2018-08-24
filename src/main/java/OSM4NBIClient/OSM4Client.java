@@ -71,6 +71,10 @@ public class OSM4Client {
 	private String manoApiEndpoint = null;
 	private String manoAuthorizationBasicHeader = null;
 
+	public static void main(String args[]) {
+		System.out.println("Make your calls here");
+	}
+	
 	public OSM4Client(String apiEndpoint, String username, String password, String project_id) {
 		this.setMANOPassword(password);
 		this.setMANOUsername(username);

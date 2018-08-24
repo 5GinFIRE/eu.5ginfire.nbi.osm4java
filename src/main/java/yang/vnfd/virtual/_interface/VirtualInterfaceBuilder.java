@@ -5,8 +5,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
 import yang.vnfd.$YangModuleInfoImpl;
-import yang.vnfd.vnfd.descriptor.VduBuilder;
-
 import java.lang.Class;
 import java.lang.Object;
 import java.lang.Override;

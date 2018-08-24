@@ -179,7 +179,7 @@ public class VmFlavorBuilder implements Builder<VmFlavor> {
         private final BigInteger _memoryMb;
         @JsonProperty("storage-gb")        
         private final BigInteger _storageGb;
-        @JsonProperty("vcpu-count")        
+        //@JsonProperty("vcpu-count")        
         private final Integer _vcpuCount;
 
         private Map<Class<? extends Augmentation<VmFlavor>>, Augmentation<VmFlavor>> augmentation = Collections.emptyMap();
