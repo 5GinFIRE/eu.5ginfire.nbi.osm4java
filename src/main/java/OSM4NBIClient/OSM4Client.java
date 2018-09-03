@@ -55,6 +55,8 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
+import OSM4Util.OSM4ArchiveExtractor.OSM4VNFDExtractor;
+import OSM4Util.OSM4VNFReq.OSM4VNFRequirements;
 import ns.yang.nfvo.nsd.rev170228.nsd.catalog.Nsd;
 import ns.yang.nfvo.vnfd.rev170228.vnfd.catalog.Vnfd;
 
@@ -73,6 +75,9 @@ public class OSM4Client {
 
 	public static void main(String args[]) {
 		System.out.println("Make your calls here");
+		File tmp=new File("C:/EP/");
+		OSM4VNFDExtractor tmp1 = new OSM4VNFDExtractor(tmp);
+		OSM4VNFRequirements tmp2 = new OSM4VNFRequirements();
 	}
 	
 	public OSM4Client(String apiEndpoint, String username, String password, String project_id) {

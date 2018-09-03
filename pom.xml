@@ -10,7 +10,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-
+	<groupId>eu.5ginfire.nbi.osm4java</groupId>
+	<artifactId>eu.5ginfire.nbi.osm4java</artifactId>
+	<version>0.0.1</version>
+	
 	<pluginRepositories>
 		<pluginRepository>
 			<id>opendaylight-release</id>
@@ -43,17 +46,14 @@
 			<url>https://nexus.opendaylight.org/content/repositories/opendaylight.snapshot/</url>
 		</repository>
 	</repositories>
-	    
-	<groupId>eu.5ginfire.nbi.osm4java</groupId>
-	<artifactId>eu.5ginfire.nbi.osm4java</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	   
 
     <properties>
 	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <salGeneratorPath>${project.build.directory}/generated-sources/mdsal-binding</salGeneratorPath>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	    <maven.compiler.source>1.7</maven.compiler.source>
-	    <maven.compiler.target>1.7</maven.compiler.target>
+	    <maven.compiler.source>1.8</maven.compiler.source>
+	    <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 	<dependencyManagement>
 		<dependencies>
@@ -85,6 +85,7 @@
 		</dependency>
         		
 
+		<!-- Dependencies for OSMClient START -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -134,7 +135,24 @@
 		    <groupId>log4j</groupId>
 		    <artifactId>log4j</artifactId>
 		    <version>1.2.17</version>
-		</dependency>			        		
+		</dependency>			
+		<!-- Dependencies for OSMClient END -->
+		
+		<!-- Dependencies for OSMUtils START -->
+		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-compress -->
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-compress</artifactId>
+		    <version>1.18</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-io -->
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-io</artifactId>
+		    <version>1.3.2</version>
+		</dependency>		
+		<!-- Dependencies for OSMUtils END -->
+		        		
 	</dependencies>
 	
     <build>
