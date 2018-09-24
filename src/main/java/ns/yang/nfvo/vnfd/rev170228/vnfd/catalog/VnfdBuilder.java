@@ -448,7 +448,7 @@ public class VnfdBuilder implements Builder<Vnfd> {
         @JsonProperty("_id")
         private final String _id;
         @JsonProperty("id")
-        private final String id = null;
+        private final String id;
         private final List<InternalVld> _internalVld;
         private final List<IpProfiles> _ipProfiles;
         @JsonProperty("logo")
@@ -468,7 +468,7 @@ public class VnfdBuilder implements Builder<Vnfd> {
         @JsonProperty("short-name")
         private final String _shortName;
         @JsonProperty("vdu")
-        private final List<Vdu> _vdu = new ArrayList<Vdu>();
+        private final List<Vdu> _vdu;
         private final List<VduDependency> _vduDependency;
         @JsonProperty("vendor")
         private final String _vendor;
@@ -493,6 +493,7 @@ public class VnfdBuilder implements Builder<Vnfd> {
                 this.key = base.key();
                 this._id = key.getId();
             }
+            this.id = null;
             this._connectionPoint = base.getConnectionPoint();
             this._description = base.getDescription();
             this._httpEndpoint = base.getHttpEndpoint();
@@ -508,7 +509,7 @@ public class VnfdBuilder implements Builder<Vnfd> {
             this._serviceFunctionChain = base.getServiceFunctionChain();
             this._serviceFunctionType = base.getServiceFunctionType();
             this._shortName = base.getShortName();
-//            this._vdu = base.getVdu();
+            this._vdu = base.getVdu();
             this._vduDependency = base.getVduDependency();
             this._vendor = base.getVendor();
             this._version = base.getVersion();
@@ -539,6 +540,11 @@ public class VnfdBuilder implements Builder<Vnfd> {
         @Override
         public String getId() {
             return _id;
+        }
+        
+        @Override
+        public String getAddedId() {
+            return id;
         }
         
         @Override

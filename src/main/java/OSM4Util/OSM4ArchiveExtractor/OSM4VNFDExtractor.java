@@ -84,6 +84,7 @@ public class OSM4VNFDExtractor {
 						s = s.replaceAll("rw-vnfd:", ""); //some yaml files contain  rw-vnfd: prefix in every key which is not common in json
 						//Replace vnfd with empty string
 						s = s.replaceAll("vnfd:", ""); //some yaml files contain  nsd: prefix in every key which is not common in json
+						System.out.println(s);
 						//try {
 						descriptor = mapper.readValue( s , Vnfd.class);
 						//}catch (Exception e) {

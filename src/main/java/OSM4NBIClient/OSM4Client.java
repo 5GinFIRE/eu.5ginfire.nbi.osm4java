@@ -23,13 +23,22 @@
 
 package OSM4NBIClient;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Properties;
+
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 
@@ -75,9 +84,6 @@ public class OSM4Client {
 
 	public static void main(String args[]) {
 		System.out.println("Make your calls here");
-		File tmp=new File("C:/EP/");
-		OSM4VNFDExtractor tmp1 = new OSM4VNFDExtractor(tmp);
-		OSM4VNFRequirements tmp2 = new OSM4VNFRequirements();
 	}
 	
 	public OSM4Client(String apiEndpoint, String username, String password, String project_id) {
@@ -85,6 +91,11 @@ public class OSM4Client {
 		this.setMANOUsername(username);
 		this.setMANOProjectId(project_id);
 		this.setMANOApiEndpoint(apiEndpoint);
+		OSM4ClientInit();
+	}
+	
+	private void OSM4ClientInit()
+	{
 		this.authenticateMANO();
 
 		// use the TrustSelfSignedStrategy to allow Self Signed Certificates
@@ -116,7 +127,7 @@ public class OSM4Client {
 		} catch (KeyStoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}		
 	}
 
 	public void getUsers() {
@@ -168,10 +179,12 @@ public class OSM4Client {
 	public Vnfd[] getVNFDs() {
 		ResponseEntity<String> response = this.getOSMResponse("/osm/vnfpkgm/v1/vnf_packages/");
 		ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+		
 		try {
 			Vnfd[] vnfd_array = mapper.readValue(new YAMLFactory().createParser(response.getBody()), Vnfd[].class);
 			return vnfd_array;
 		} catch (IllegalStateException | IOException e) {
+			System.out.println(response.getBody());
 			logger.error(e.getMessage() );
 			e.printStackTrace();
 		}
@@ -198,7 +211,7 @@ public class OSM4Client {
 		return null;
 	}
 
-	public String createVNFDInstance() {
+	public String createVNFDPackage() {
 		// Create an instance of VNFD Package to fill.
 		// This is accomplished by posting to "/osm/vnfpkgm/v1/vnf_packages"
 		// The API returns the ID of the instance.
@@ -213,11 +226,11 @@ public class OSM4Client {
 				String.class);
 		JSONObject obj = new JSONObject(entity.getBody());
 		String vnfd_id = obj.getString("id");
-		System.out.println("The new VNFD Instance id is :" + vnfd_id);
+		System.out.println(entity.getStatusCode()+" replied. The new VNFD Package id is :" + vnfd_id);
 		return vnfd_id;
 	}
 
-	public String createNSDInstance() {
+	public String createNSDPackage() {
 		// Create an instance of VNFD Package to fill.
 		// This is accomplished by posting to "/osm/vnfpkgm/v1/vnf_packages"
 		// The API returns the ID of the instance.
@@ -232,67 +245,231 @@ public class OSM4Client {
 				String.class);
 		JSONObject obj = new JSONObject(entity.getBody());
 		String nsd_id = obj.getString("id");
-		System.out.println("The new VNFD Instance id is :" + nsd_id);
+		System.out.println("The new NSD Instance id is :" + nsd_id);
 		return nsd_id;
 	}
 	
-	public void uploadVNFDZip(String vnfd_id, String zip_path) {
+	public ResponseEntity<String> uploadVNFDPackageContent(String vnfd_id, String package_path) throws IOException{
 		RestTemplate restTemplate = new RestTemplate(requestFactory);
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("content-type", "application/zip");
 		headers.add("Authorization", "Bearer " + this.getMANOAuthorizationBasicHeader());
-		File file = new File(zip_path);
-		try (InputStream inputStream = new FileInputStream(zip_path);) {
-			long fileSize = new File(zip_path).length();
+		byte[] allBytes;
+		if(package_path.contains("http")||package_path.contains("localhost"))
+		{
+			URL url = new URL(package_path);
+			URLConnection conn = url.openConnection();	
+			int contentLength = conn.getContentLength();			
+			InputStream inputStream = url.openStream();			
 
-			byte[] allBytes = new byte[(int) fileSize];
+			ByteArrayOutputStream tmpOut;
+		    if (contentLength != -1) {
+		        tmpOut = new ByteArrayOutputStream(contentLength);
+		    } else {
+		        tmpOut = new ByteArrayOutputStream(16384); // Pick some appropriate size
+		    }
 
+		    byte[] buf = new byte[512];
+		    while (true) {
+		        int len = inputStream.read(buf);
+		        if (len == -1) {
+		            break;
+		        }
+		        tmpOut.write(buf, 0, len);
+		    }
+		    tmpOut.close(); // No effect, but good to do anyway to keep the metaphor alive
+		    allBytes = tmpOut.toByteArray();			
+			System.out.println("allBytes size = "+allBytes.length);		
+			
+			System.out.println("Filesize: " + contentLength + " bytes.");
+			inputStream.close();
+		}
+		else
+		{
+			InputStream inputStream = new FileInputStream(package_path);
+			long fileSize = new File(package_path).length();
+			allBytes = new byte[(int) fileSize];
 			inputStream.read(allBytes);
 			System.out.println("Filesize: " + fileSize + " bytes.");
-			HttpEntity<byte[]> send_zip_request = new HttpEntity<>(allBytes, headers);
-			ResponseEntity<String> send_zip_entity = null;
-			try {
-				send_zip_entity = restTemplate.exchange(this.getMANOApiEndpoint()
-						+ "/osm/vnfpkgm/v1/vnf_packages/" + vnfd_id + "/package_content", HttpMethod.PUT,
-						send_zip_request, String.class);
-			} catch (RuntimeException e) {
-				if (send_zip_entity != null) {
-					if (send_zip_entity.getStatusCode().series() == HttpStatus.Series.SERVER_ERROR) {
-						// handle SERVER_ERROR
-						System.out.println("Server ERROR:" + send_zip_entity.getStatusCode().toString());
-					} else if (send_zip_entity.getStatusCode().series() == HttpStatus.Series.CLIENT_ERROR) {
-						// handle CLIENT_ERROR
-						System.out.println("Client ERROR:" + send_zip_entity.getStatusCode().toString());
-						if (send_zip_entity.getStatusCode() == HttpStatus.NOT_FOUND) {
-							System.out.println("Unknown Response Status");
-						}
-					}
-					System.out.println("Error! " + send_zip_entity.getBody());
-				}
-				else
-				{
-					System.out.println("Error! No response.");
-				}
-				return;
-			}
-
-			if (send_zip_entity.getStatusCode() == HttpStatus.NO_CONTENT) {
-				System.out.println("No Content Replied!");
-			}
-			if (send_zip_entity.getStatusCode() == HttpStatus.CREATED) {
-				System.out.println("VFND Onboarding Succeded!");
-			}
-		} catch (IOException ex) {
-			ex.printStackTrace();
+			inputStream.close();
 		}
+		HttpEntity<byte[]> send_zip_request = new HttpEntity<>(allBytes, headers);
+		ResponseEntity<String> send_package_entity = null;
+		try {
+			send_package_entity = restTemplate.exchange(this.getMANOApiEndpoint()
+					+ "/osm/vnfpkgm/v1/vnf_packages/" + vnfd_id + "/package_content", HttpMethod.PUT,
+					send_zip_request, String.class);
+		} catch (RuntimeException e) {
+			if (send_package_entity != null) {
+				if (send_package_entity.getStatusCode().series() == HttpStatus.Series.SERVER_ERROR) {
+					// handle SERVER_ERROR
+					System.out.println("Server ERROR:" + send_package_entity.getStatusCode().toString()+", Status Code:"+send_package_entity.getStatusCode()+", Exception Message:"+e.getMessage()+","+send_package_entity.getBody());
+				} else if (send_package_entity.getStatusCode().series() == HttpStatus.Series.CLIENT_ERROR) {
+					// handle CLIENT_ERROR
+					System.out.println("Client ERROR:" + send_package_entity.getStatusCode().toString()+", Status Code:"+send_package_entity.getStatusCode()+", Exception Message:"+e.getMessage()+","+send_package_entity.getBody());
+					if (send_package_entity.getStatusCode() == HttpStatus.NOT_FOUND) {
+						System.out.println("Unknown Response Status."+e.getMessage());
+					}
+				}
+				System.out.println("RunTime Exception Error! " + send_package_entity.getStatusCode().toString()+", Status Code:"+send_package_entity.getStatusCode()+", Exception Message:"+e.getMessage()+","+send_package_entity.getBody());
+			}
+			else
+			{
+				System.out.println("RunTime Exception Error! No response. Exception Message: " + e.getMessage());
+			}
+			return send_package_entity;
+		}
+
+		if (send_package_entity.getStatusCode() == HttpStatus.NO_CONTENT) {
+			System.out.println("Successful Onboarding Request with vnfd id "+vnfd_id+". Status 204-No Content Replied!"+","+send_package_entity.getBody());
+		}
+		if (send_package_entity.getStatusCode() == HttpStatus.CREATED) {
+			System.out.println("Successful Onboarding Request with vnfd id "+vnfd_id+". Status 201-Created Replied. VFND Onboarding Succeded!"+","+send_package_entity.getBody());
+		}
+		return send_package_entity;
 	}
 
+	public ResponseEntity<String> uploadNSDPackageContent(String nsd_id, String package_path) throws IOException{
+		RestTemplate restTemplate = new RestTemplate(requestFactory);
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("content-type", "application/zip");
+		headers.add("Authorization", "Bearer " + this.getMANOAuthorizationBasicHeader());
+		byte[] allBytes;
+		if(package_path.contains("http")||package_path.contains("localhost"))
+		{
+			System.out.println("This is the package path:"+package_path);
+			URL url = new URL(package_path);
+			URLConnection conn = url.openConnection();	
+			int contentLength = conn.getContentLength();			
+			InputStream inputStream = url.openStream();			
+			
+			ByteArrayOutputStream tmpOut;
+		    if (contentLength != -1) {
+		        tmpOut = new ByteArrayOutputStream(contentLength);
+		    } else {
+		        tmpOut = new ByteArrayOutputStream(16384); // Pick some appropriate size
+		    }
+
+		    byte[] buf = new byte[512];
+		    while (true) {
+		        int len = inputStream.read(buf);
+		        if (len == -1) {
+		            break;
+		        }
+		        tmpOut.write(buf, 0, len);
+		    }
+		    tmpOut.close(); // No effect, but good to do anyway to keep the metaphor alive
+		    allBytes = tmpOut.toByteArray();			
+			System.out.println("allBytes size = "+allBytes.length);		
+//		    
+//				File targetFile = new File("c:/EP/cirros_2vnf_ns_read.tar.gz");
+//				// if file doesnt exists, then create it
+//				if (!targetFile.exists()) {
+//					targetFile.createNewFile();
+//				}			
+//				try {
+//				    OutputStream outStream = new FileOutputStream(targetFile);
+//				    outStream.write(allBytes);
+//				    outStream.flush();
+//					outStream.close();
+//				}
+//				catch(Exception e)
+//				{
+//					System.out.println("ERROR writing file:"+e.getMessage());
+//				}
+			System.out.println("Filesize: " + contentLength + " bytes.");
+			inputStream.close();
+		}
+		else
+		{
+			InputStream inputStream = new FileInputStream(package_path);
+			long fileSize = new File(package_path).length();
+			allBytes = new byte[(int) fileSize];
+			inputStream.read(allBytes);
+			System.out.println("Filesize: " + fileSize + " bytes.");
+			inputStream.close();
+		}
+		HttpEntity<byte[]> send_zip_request = new HttpEntity<>(allBytes, headers);
+		ResponseEntity<String> send_package_entity = null;
+		try {			
+			send_package_entity = restTemplate.exchange(this.getMANOApiEndpoint()
+					+ "/osm/nsd/v1/ns_descriptors/" + nsd_id + "/nsd_content", HttpMethod.PUT,
+					send_zip_request, String.class);
+		} catch (RuntimeException e) {
+			System.out.println(e.getMessage());
+			if(send_package_entity!=null)
+			{
+				if (send_package_entity.getStatusCode().series() == HttpStatus.Series.SERVER_ERROR) {
+					// handle SERVER_ERROR
+					System.out.println("Server ERROR:" + send_package_entity.getStatusCode().toString());
+				} else if (send_package_entity.getStatusCode().series() == HttpStatus.Series.CLIENT_ERROR) {
+					// handle CLIENT_ERROR
+					System.out.println("Client ERROR:" + send_package_entity.getStatusCode().toString());
+					if (send_package_entity.getStatusCode() == HttpStatus.NOT_FOUND) {
+						System.out.println("Unknown Response Status");
+					}
+				}
+				System.out.println("Error! " + send_package_entity.getBody());
+			}
+			else
+			{
+				System.out.println("Error! Null Response."+e.getMessage());
+			}
+			System.out.println("Error! Null Response."+e.getMessage());
+			return send_package_entity;
+		}
+
+		if (send_package_entity.getStatusCode() == HttpStatus.NO_CONTENT) {
+			System.out.println("Successful Onboarding Request with nsd id "+nsd_id+". Status 204-No Content Replied!"+","+send_package_entity.getBody());
+		}
+		if (send_package_entity.getStatusCode() == HttpStatus.CREATED) {
+			System.out.println("Successful Onboarding Request with nsd id "+nsd_id+". Status 201-Created Replied. NSD Onboarding Succeded!"+","+send_package_entity.getBody());
+		}
+		return send_package_entity;
+	}
+	
+	// Return the Successfully created VNFD id or NULL.
+	// The file may not be found then trhow an exception
+	// There could be a conflict with the VNFD Package Content. Then return null.
+	public String onBoardVNFD(String package_path) throws IOException {
+		String vnfd_id = this.createVNFDPackage();
+	    System.out.println("Uploading VNFD Archive from URL "+package_path);
+	    System.out.println("************************");
+		ResponseEntity<String> response =this.uploadVNFDPackageContent(vnfd_id, package_path);
+		if(response==null || response.getStatusCodeValue()>=400)
+		{
+			System.out.println("Upload of VNFD Package Content failed. Deleting VNFD Package.");
+			this.deleteVNFDPackage(vnfd_id);
+			return null;
+		}
+		return vnfd_id;
+	}
+	
+	public String onBoardNSD(String package_path) throws IOException {
+		String nsd_id = this.createNSDPackage();
+//		// TODO Handle failure acquiriing a vnfd_id
+//		String zip_path = "./src/test/resources/temp/cirros_ns.tar.gz";
+//		this.uploadNSDZip(nsd_id, zip_path);
+//		return null;
+	    System.out.println("Uploading NSD Archive from URL "+package_path);
+	    System.out.println("************************");
+		ResponseEntity<String> response =this.uploadNSDPackageContent(nsd_id, package_path);
+		if(response==null || response.getStatusCodeValue()>=400)
+		{
+			System.out.println("Upload of NSD Package Content failed. Deleting NSD Package.");
+			//this.deleteNSDbyID(nsd_id);
+			this.deleteNSDPackage(nsd_id);
+			return null;
+		}
+		return nsd_id;
+	}
+	
 	public void uploadNSDZip(String nsd_id, String zip_path) {
 		RestTemplate restTemplate = new RestTemplate(requestFactory);
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("content-type", "application/zip");
 		headers.add("Authorization", "Bearer " + this.getMANOAuthorizationBasicHeader());
-		File file = new File(zip_path);
+		//File file = new File(zip_path);
 		try (InputStream inputStream = new FileInputStream(zip_path);) {
 			long fileSize = new File(zip_path).length();
 
@@ -339,19 +516,6 @@ public class OSM4Client {
 		}
 	}
 	
-	public void onBoardVNFD() {
-		String vnfd_id = this.createVNFDInstance();
-		// TODO Handle failure acquiriing a vnfd_id
-		String zip_path = "./src/test/resources/temp/cirros_vnf.tar.gz";
-		this.uploadVNFDZip(vnfd_id, zip_path);
-	}
-
-	public void onBoardNSD() {
-		String nsd_id = this.createNSDInstance();
-		// TODO Handle failure acquiriing a vnfd_id
-		String zip_path = "./src/test/resources/temp/cirros_ns.tar.gz";
-		this.uploadNSDZip(nsd_id, zip_path);
-	}
 	
 	public String createNSInstance(String vim_id,String nsd_id)
 	{
@@ -475,6 +639,23 @@ public class OSM4Client {
 		}
 	}
 
+	public HttpEntity<String> deleteVNFDPackage(String vnfd_id) {
+		// Create an instance of VNFD Package to fill.
+		// This is accomplished by posting to "/osm/vnfpkgm/v1/vnf_packages"
+		// The API returns the ID of the instance.
+		RestTemplate restTemplate = new RestTemplate(requestFactory);
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("content-type", "application/json");
+		headers.add("accept", "application/json");
+		headers.add("Authorization", "Bearer " + this.getMANOAuthorizationBasicHeader());
+		HttpEntity<String> request = new HttpEntity<String>(headers);
+		ResponseEntity<String> entity = restTemplate.exchange(
+				this.getMANOApiEndpoint() + "/osm/vnfpkgm/v1/vnf_packages/"+vnfd_id, HttpMethod.DELETE, request,
+				String.class);
+		System.out.println("The delete VNFD Package with id "+vnfd_id+" returned code :" + entity.getStatusCode().toString());
+		return entity;
+	}
+	
 	public void deleteNSDbyID(String aNSDid)
 	{
 		System.out.println("/osm/nsd/v1/ns_descriptors/"+aNSDid);
@@ -487,7 +668,24 @@ public class OSM4Client {
 			e.printStackTrace();
 		}
 	}
-		
+
+	public HttpEntity<String> deleteNSDPackage(String nsd_id) {
+		// Create an instance of NSD Package to fill.
+		// This is accomplished by posting to "/osm/nsd/v1/ns_descriptors/"
+		// The API returns the ID of the instance.
+		RestTemplate restTemplate = new RestTemplate(requestFactory);
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("content-type", "application/json");
+		headers.add("accept", "application/json");
+		headers.add("Authorization", "Bearer " + this.getMANOAuthorizationBasicHeader());
+		HttpEntity<String> request = new HttpEntity<String>(headers);
+		ResponseEntity<String> entity = restTemplate.exchange(
+				this.getMANOApiEndpoint() + "/osm/nsd/v1/ns_descriptors/"+nsd_id, HttpMethod.DELETE, request,
+				String.class);
+		System.out.println("The delete NSD Package with id "+nsd_id+" returned code :" + entity.getStatusCode().toString());
+		return entity;
+	}
+	
 	public void authenticateMANO()
     {
         // use the TrustSelfSignedStrategy to allow Self Signed Certificates

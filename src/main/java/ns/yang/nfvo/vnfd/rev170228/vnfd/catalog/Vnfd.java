@@ -47,6 +47,6 @@ public interface Vnfd
 
     @Override
     VnfdKey key();
-
+    String getAddedId();
 }
 

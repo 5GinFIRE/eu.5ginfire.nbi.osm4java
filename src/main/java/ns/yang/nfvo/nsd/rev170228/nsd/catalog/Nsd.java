@@ -58,5 +58,5 @@ public interface Nsd extends ChildOf<NsdCatalog>, Augmentable<Nsd>, NsdMonitorin
 
 	@Override
 	NsdKey key();
-
+    String getAddedId();	
 }

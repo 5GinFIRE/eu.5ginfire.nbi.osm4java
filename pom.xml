@@ -28,7 +28,6 @@
 		</pluginRepository>
 	</pluginRepositories>
 
-
 	<parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -77,8 +76,7 @@
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-common</artifactId>
-            <version>2.0.7</version>
-        </dependency>
+            </dependency>
 		<dependency>
 			<groupId>org.opendaylight.mdsal</groupId>
 			<artifactId>yang-binding</artifactId>
@@ -102,23 +100,19 @@
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
-            <version>2.3.0</version>
-        </dependency>
+            </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.4</version>
-        </dependency>        
+            </dependency>        
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.1</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
-            <version>4.4.9</version>
             <type>jar</type>
         </dependency>
         <dependency>

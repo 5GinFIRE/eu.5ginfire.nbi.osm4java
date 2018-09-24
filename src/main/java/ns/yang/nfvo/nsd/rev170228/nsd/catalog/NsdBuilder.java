@@ -511,7 +511,7 @@ public class NsdBuilder implements Builder<Nsd> {
         @JsonProperty("_id")        
         private final String _id;
         @JsonProperty("id")        
-        private final String id = null;
+        private final String id;
         @JsonProperty("initial-config-primitive")        
         private final List<InitialServicePrimitive> _initialServicePrimitive;
         private final List<InputParameterXpath> _inputParameterXpath;
@@ -555,6 +555,7 @@ public class NsdBuilder implements Builder<Nsd> {
                 this.key = base.key();
                 this._id = key.getId();
             }
+            this.id = null;            
             this._connectionPoint = base.getConnectionPoint();
             this._constituentVnfd = base.getConstituentVnfd();
             this._description = base.getDescription();
@@ -607,6 +608,11 @@ public class NsdBuilder implements Builder<Nsd> {
         @Override
         public String getId() {
             return _id;
+        }
+
+        @Override
+        public String getAddedId() {
+            return id;
         }
         
         @Override
