@@ -23,21 +23,17 @@
 
 package OSM4NBIClient;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Properties;
+import java.time.Instant;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -59,19 +55,17 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-import OSM4Util.OSM4ArchiveExtractor.OSM4VNFDExtractor;
-import OSM4Util.OSM4VNFReq.OSM4VNFRequirements;
 import ns.yang.nfvo.nsd.rev170228.nsd.catalog.Nsd;
 import ns.yang.nfvo.vnfd.rev170228.vnfd.catalog.Vnfd;
 
 public class OSM4Client {
 
-	//private static final Logger log = LoggerFactory.getLogger(OSM4Client.class);
 	private static final Logger logger = LogManager.getLogger(OSM4Client.class);
 			
 	private CloseableHttpClient httpClient;
@@ -81,9 +75,11 @@ public class OSM4Client {
     private HttpComponentsClientHttpRequestFactory requestFactory;
 	private String manoApiEndpoint = null;
 	private String manoAuthorizationBasicHeader = null;
+	private static Double manoAuthorizationTokenTimeout = 1.0;
+	private static String manoAuthorizationTokenID = null;
 
 	public static void main(String args[]) {
-		System.out.println("Make your calls here");
+		System.out.println("Make your calls here");	
 	}
 	
 	public OSM4Client(String apiEndpoint, String username, String password, String project_id) {
@@ -361,22 +357,6 @@ public class OSM4Client {
 		    tmpOut.close(); // No effect, but good to do anyway to keep the metaphor alive
 		    allBytes = tmpOut.toByteArray();			
 			System.out.println("allBytes size = "+allBytes.length);		
-//		    
-//				File targetFile = new File("c:/EP/cirros_2vnf_ns_read.tar.gz");
-//				// if file doesnt exists, then create it
-//				if (!targetFile.exists()) {
-//					targetFile.createNewFile();
-//				}			
-//				try {
-//				    OutputStream outStream = new FileOutputStream(targetFile);
-//				    outStream.write(allBytes);
-//				    outStream.flush();
-//					outStream.close();
-//				}
-//				catch(Exception e)
-//				{
-//					System.out.println("ERROR writing file:"+e.getMessage());
-//				}
 			System.out.println("Filesize: " + contentLength + " bytes.");
 			inputStream.close();
 		}
@@ -447,10 +427,6 @@ public class OSM4Client {
 	
 	public String onBoardNSD(String package_path) throws IOException {
 		String nsd_id = this.createNSDPackage();
-//		// TODO Handle failure acquiriing a vnfd_id
-//		String zip_path = "./src/test/resources/temp/cirros_ns.tar.gz";
-//		this.uploadNSDZip(nsd_id, zip_path);
-//		return null;
 	    System.out.println("Uploading NSD Archive from URL "+package_path);
 	    System.out.println("************************");
 		ResponseEntity<String> response =this.uploadNSDPackageContent(nsd_id, package_path);
@@ -519,7 +495,8 @@ public class OSM4Client {
 	
 	public String createNSInstance(String vim_id,String nsd_id)
 	{
-//		{"notificationType": "NsIdentifierCreationNotification","nsName":"mynsi","vimAccountId":"8e0929c5-4cc2-4a78-887f-d3642336e18c","nsdId":"07191481-0213-4b24-a7dd-a2e98e76803c"}
+		// Response example
+		//{"notificationType": "NsIdentifierCreationNotification","nsName":"mynsi","vimAccountId":"8e0929c5-4cc2-4a78-887f-d3642336e18c","nsdId":"07191481-0213-4b24-a7dd-a2e98e76803c"}
 		RestTemplate restTemplate = new RestTemplate(requestFactory);
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("content-type", "application/json");
@@ -639,7 +616,7 @@ public class OSM4Client {
 		}
 	}
 
-	public HttpEntity<String> deleteVNFDPackage(String vnfd_id) {
+	public ResponseEntity<String> deleteVNFDPackage(String vnfd_id) throws HttpClientErrorException {
 		// Create an instance of VNFD Package to fill.
 		// This is accomplished by posting to "/osm/vnfpkgm/v1/vnf_packages"
 		// The API returns the ID of the instance.
@@ -649,10 +626,10 @@ public class OSM4Client {
 		headers.add("accept", "application/json");
 		headers.add("Authorization", "Bearer " + this.getMANOAuthorizationBasicHeader());
 		HttpEntity<String> request = new HttpEntity<String>(headers);
-		ResponseEntity<String> entity = restTemplate.exchange(
-				this.getMANOApiEndpoint() + "/osm/vnfpkgm/v1/vnf_packages/"+vnfd_id, HttpMethod.DELETE, request,
-				String.class);
-		System.out.println("The delete VNFD Package with id "+vnfd_id+" returned code :" + entity.getStatusCode().toString());
+		ResponseEntity<String> entity = null;
+		entity = restTemplate.exchange(
+		this.getMANOApiEndpoint() + "/osm/vnfpkgm/v1/vnf_packages/"+vnfd_id, HttpMethod.DELETE, request,String.class);
+		System.out.println("The delete VNFD Package with id "+vnfd_id+" returned code :" + entity.getStatusCodeValue());
 		return entity;
 	}
 	
@@ -669,7 +646,7 @@ public class OSM4Client {
 		}
 	}
 
-	public HttpEntity<String> deleteNSDPackage(String nsd_id) {
+	public ResponseEntity<String> deleteNSDPackage(String nsd_id) {
 		// Create an instance of NSD Package to fill.
 		// This is accomplished by posting to "/osm/nsd/v1/ns_descriptors/"
 		// The API returns the ID of the instance.
@@ -688,6 +665,14 @@ public class OSM4Client {
 	
 	public void authenticateMANO()
     {
+		if(OSM4Client.getManoAuthorizationTokenTimeout()>Instant.now().getEpochSecond()+120)
+		{
+	        System.out.println(OSM4Client.getManoAuthorizationTokenTimeout()+">"+Instant.now().getEpochSecond()+"+120");
+	        this.setΜΑΝΟAuthorizationBasicHeader(OSM4Client.getManoAuthorizationTokenID());	
+	        System.out.println("Valid Key, skipping new authentication");
+	        return;
+		}
+			
         // use the TrustSelfSignedStrategy to allow Self Signed Certificates
         SSLContext sslContext;
 		try {
@@ -733,6 +718,8 @@ public class OSM4Client {
        
         JSONObject obj = new JSONObject(entity.getBody());
         this.setΜΑΝΟAuthorizationBasicHeader(obj.getString("id"));
+        OSM4Client.setManoAuthorizationTokenTimeout(obj.getDouble("expires"));
+        OSM4Client.setManoAuthorizationTokenID(obj.getString("id"));
         try {
 			httpClient.close();
 		} catch (IOException e) {
@@ -741,6 +728,16 @@ public class OSM4Client {
 		}
     }
 
+
+	private static String getManoAuthorizationTokenID() {
+		// TODO Auto-generated method stub
+		return OSM4Client.manoAuthorizationTokenID;
+	}
+
+	private static void setManoAuthorizationTokenID(String tokenID) {
+		// TODO Auto-generated method stub
+		OSM4Client.manoAuthorizationTokenID=tokenID;		
+	}
 
 	public String getMANOApiEndpoint() {
 		return manoApiEndpoint;
@@ -805,5 +802,19 @@ public class OSM4Client {
 
 	public void setΜΑΝΟAuthorizationBasicHeader(String authorizationBasicHeader) {
 		this.manoAuthorizationBasicHeader = authorizationBasicHeader;
+	}
+
+	/**
+	 * @return the manoAuthorizationTokenTimeout
+	 */
+	public static Double getManoAuthorizationTokenTimeout() {
+		return manoAuthorizationTokenTimeout;
+	}
+
+	/**
+	 * @param manoAuthorizationTokenTimeout the manoAuthorizationTokenTimeout to set
+	 */
+	public static void setManoAuthorizationTokenTimeout(double manoAuthorizationTokenTimeout) {
+		OSM4Client.manoAuthorizationTokenTimeout = manoAuthorizationTokenTimeout;
 	}	
 }
