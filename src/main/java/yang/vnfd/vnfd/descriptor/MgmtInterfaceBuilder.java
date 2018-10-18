@@ -129,11 +129,11 @@ public class MgmtInterfaceBuilder implements Builder<MgmtInterface> {
         public Class<MgmtInterface> getImplementedInterface() {
             return MgmtInterface.class;
         }
-        @JsonProperty("dashboard-params") 
+        //@JsonProperty("dashboard-params") 
         private final DashboardParams _dashboardParams;
-        @JsonProperty("endpoint-type")
-        private EndpointType _endpointType;
-        @JsonProperty("port")
+        //@JsonProperty("endpoint-type")
+        private EndpointType _endpointType;        
+        //@JsonProperty("port")
         private final PortNumber _port;
 
         private Map<Class<? extends Augmentation<MgmtInterface>>, Augmentation<MgmtInterface>> augmentation = Collections.emptyMap();

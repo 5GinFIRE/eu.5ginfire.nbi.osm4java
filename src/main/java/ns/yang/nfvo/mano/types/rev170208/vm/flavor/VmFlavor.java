@@ -44,6 +44,7 @@ import ns.yang.nfvo.mano.types.rev170208.vm.flavor.VmFlavorBuilder.VmFlavorImpl;
  *
  */
 @JsonDeserialize(as =VmFlavorImpl.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 //@JsonIgnoreProperties( {"vcpu-count"} )
 public interface VmFlavor
 		extends ChildOf<ns.yang.nfvo.mano.types.rev170208.VmFlavor>,

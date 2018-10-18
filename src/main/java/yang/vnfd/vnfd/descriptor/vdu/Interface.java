@@ -72,7 +72,8 @@ import yang.vnfd.vnfd.descriptor.vdu._interface.ConnectionPointType;
  *
  */
 @JsonDeserialize(as = InterfaceImpl.class)
-@JsonIgnoreProperties( {"external-connection-point-ref"} )
+//@JsonIgnoreProperties( {"external-connection-point-ref"} )
+@JsonIgnoreProperties(ignoreUnknown = true)
 public interface Interface
     extends
     ChildOf<Vdu>,

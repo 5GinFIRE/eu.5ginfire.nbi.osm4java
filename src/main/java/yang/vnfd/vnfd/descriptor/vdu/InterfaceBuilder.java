@@ -226,7 +226,7 @@ public class InterfaceBuilder implements Builder<Interface> {
         private final Long _position;
         @JsonProperty("type")        
         private final InterfaceType _type;
-        @JsonProperty("virtual-interface")        
+        //JsonProperty("virtual-interface")
         private final VirtualInterface _virtualInterface;
         private final Boolean _mgmtInterface;
         @JsonProperty("key")

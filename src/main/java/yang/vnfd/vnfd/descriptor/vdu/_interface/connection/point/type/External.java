@@ -6,6 +6,7 @@ import org.opendaylight.yangtools.yang.binding.Augmentable;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import yang.vnfd.$YangModuleInfoImpl;
@@ -30,6 +31,7 @@ import yang.vnfd.vnfd.descriptor.vdu._interface.connection.point.type.ExternalBu
  *
  */
 @JsonDeserialize(as = ExternalImpl.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public interface External
     extends
     DataObject,

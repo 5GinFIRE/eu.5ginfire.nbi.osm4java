@@ -84,7 +84,8 @@ import yang.base.nsd.descriptor.common.scaling.group.descriptor.scaling.policy.S
  *
  */
 @JsonDeserialize(as = ScalingPolicyImpl.class)
-@JsonIgnoreProperties( {"scaling-type"} )
+//@JsonIgnoreProperties( {"scaling-type"} )
+@JsonIgnoreProperties(ignoreUnknown = true)
 public interface ScalingPolicy
     extends
     ChildOf<ScalingGroupDescriptor>,

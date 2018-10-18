@@ -474,7 +474,7 @@ public class VnfdBuilder implements Builder<Vnfd> {
         private final String _vendor;
         @JsonProperty("version")
         private final String _version;
-        @JsonProperty("vnf-configuration")
+        //@JsonProperty("vnf-configuration")
         private final VnfConfiguration _vnfConfiguration;
         private final VnfdKey key;
 

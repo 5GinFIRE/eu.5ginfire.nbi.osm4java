@@ -10,6 +10,7 @@ import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.common.QName;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import ns.yang.nfvo.nsd.rev170228.$YangModuleInfoImpl;
@@ -51,6 +52,7 @@ import ns.yang.nfvo.nsd.rev170228.nsd.constituent.vnfd.ConstituentVnfdBuilder.Co
  *
  */
 @JsonDeserialize(as = ConstituentVnfdImpl.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public interface ConstituentVnfd
 		extends ChildOf<NsdConstituentVnfd>, Augmentable<ConstituentVnfd>, Identifiable<ConstituentVnfdKey> {
 

@@ -120,6 +120,7 @@ import yang.base.nsd.descriptor.common.scaling.group.descriptor.VnfdMember;
  *
  */
 @JsonDeserialize(as = ScalingGroupDescriptorImpl.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 //@JsonIgnoreProperties( {} )
 public interface ScalingGroupDescriptor
     extends

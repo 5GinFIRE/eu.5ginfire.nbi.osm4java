@@ -665,13 +665,13 @@ public class OSM4Client {
 	
 	public void authenticateMANO()
     {
-		if(OSM4Client.getManoAuthorizationTokenTimeout()>Instant.now().getEpochSecond()+120)
-		{
-	        System.out.println(OSM4Client.getManoAuthorizationTokenTimeout()+">"+Instant.now().getEpochSecond()+"+120");
-	        this.setΜΑΝΟAuthorizationBasicHeader(OSM4Client.getManoAuthorizationTokenID());	
-	        System.out.println("Valid Key, skipping new authentication");
-	        return;
-		}
+//		if(OSM4Client.getManoAuthorizationTokenTimeout()>Instant.now().getEpochSecond()+120)
+//		{
+//	        System.out.println(OSM4Client.getManoAuthorizationTokenTimeout()+">"+Instant.now().getEpochSecond()+"+120");
+//	        this.setΜΑΝΟAuthorizationBasicHeader(OSM4Client.getManoAuthorizationTokenID());	
+//	        System.out.println("Valid Key, skipping new authentication");
+//	        return;
+//		}
 			
         // use the TrustSelfSignedStrategy to allow Self Signed Certificates
         SSLContext sslContext;

@@ -5,6 +5,7 @@ import org.opendaylight.yangtools.yang.binding.Augmentable;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.common.QName;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import ns.yang.ietf.inet.types.rev100924.PortNumber;
@@ -65,6 +66,7 @@ import yang.vnfd.vnfd.descriptor.mgmt._interface.EndpointType;
  *
  */
 @JsonDeserialize(as = MgmtInterfaceImpl.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public interface MgmtInterface
     extends
     ChildOf<VnfdDescriptor>,

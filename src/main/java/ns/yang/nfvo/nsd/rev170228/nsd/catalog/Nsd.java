@@ -50,7 +50,8 @@ import yang.base.NsdDescriptorCommon;
  *
  */
 @JsonDeserialize(as = NsdImpl.class)
-@JsonIgnoreProperties( { "meta", "forgetThisField", "input-parameter-xpath", "_admin"} )
+@JsonIgnoreProperties(ignoreUnknown = true)
+//@JsonIgnoreProperties( { "meta", "forgetThisField", "input-parameter-xpath", "_admin"} )
 public interface Nsd extends ChildOf<NsdCatalog>, Augmentable<Nsd>, NsdMonitoringParam, NsdServicePrimitive, NsdVld,
 		NsdConstituentVnfd, NsdPlacementGroups, NsdDescriptorCommon, NsdVnfDependency, Identifiable<NsdKey> {
 

@@ -10,6 +10,7 @@ import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.common.QName;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import ns.yang.nfvo.mano.types.rev170208.GuestEpa;
@@ -167,6 +168,8 @@ import yang.vnfd.vnfd.descriptor.vdu.Volumes;
  *
  */
 @JsonDeserialize(as = VduImpl.class)
+//@JsonIgnoreProperties( {"cloud-init-file"} )
+@JsonIgnoreProperties(ignoreUnknown = true)
 public interface Vdu
     extends
     ChildOf<VnfdDescriptor>,

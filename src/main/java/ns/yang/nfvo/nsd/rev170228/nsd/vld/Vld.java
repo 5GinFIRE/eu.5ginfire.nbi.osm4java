@@ -54,7 +54,8 @@ import yang.base.NsdVldCommon;
  *
  */
 @JsonDeserialize(as = VldImpl.class)
-@JsonIgnoreProperties( {"vim-network-name", "ip-profile-ref"} )
+//@JsonIgnoreProperties( {"vim-network-name", "ip-profile-ref"} )
+@JsonIgnoreProperties(ignoreUnknown = true)
 public interface Vld
     extends
     ChildOf<NsdVld>,

@@ -515,7 +515,7 @@ public class NsdBuilder implements Builder<Nsd> {
         @JsonProperty("initial-config-primitive")        
         private final List<InitialServicePrimitive> _initialServicePrimitive;
         private final List<InputParameterXpath> _inputParameterXpath;
-        @JsonProperty("ip-profiles")        
+        //@JsonProperty("ip-profiles")        
         private final List<IpProfiles> _ipProfiles;
         private final List<KeyPair> _keyPair;
         @JsonProperty("logo")        

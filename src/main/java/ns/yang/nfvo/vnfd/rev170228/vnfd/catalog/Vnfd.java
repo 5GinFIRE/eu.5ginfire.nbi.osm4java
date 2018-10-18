@@ -32,7 +32,8 @@ import yang.vnfd.VnfdDescriptor;
  *
  */
 @JsonDeserialize(as = VnfdImpl.class)
-@JsonIgnoreProperties( {"meta", "http-endpoint", "_admin"} )
+//@JsonIgnoreProperties( {"meta", "http-endpoint", "_admin"} )
+@JsonIgnoreProperties(ignoreUnknown = true)
 public interface Vnfd
     extends
     ChildOf<VnfdCatalog>,

@@ -194,7 +194,7 @@ public class InitialServicePrimitiveBuilder implements Builder<InitialServicePri
         return new InitialServicePrimitiveImpl(this);
     }
 
-    private static final class InitialServicePrimitiveImpl implements InitialServicePrimitive {
+    public static final class InitialServicePrimitiveImpl implements InitialServicePrimitive {
 
         @Override
         public Class<InitialServicePrimitive> getImplementedInterface() {

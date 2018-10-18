@@ -56,6 +56,7 @@ import org.opendaylight.yangtools.yang.common.QName;
  *
  */
 @JsonDeserialize(as = VirtualInterfaceImpl.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 //@JsonIgnoreProperties( {"external-connection-point-ref"} )
 public interface VirtualInterface
     extends

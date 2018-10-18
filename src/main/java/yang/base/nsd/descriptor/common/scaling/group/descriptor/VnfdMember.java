@@ -41,6 +41,7 @@ import yang.base.nsd.descriptor.common.scaling.group.descriptor.VnfdMemberBuilde
  *
  */
 @JsonDeserialize(as = VnfdMemberImpl.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 //@JsonIgnoreProperties( {} )
 public interface VnfdMember
     extends

@@ -9,6 +9,7 @@ import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.common.QName;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import ns.yang.ietf.inet.types.rev100924.IpAddress;
@@ -50,6 +51,8 @@ import ns.yang.nfvo.nsd.rev170228.nsd.vld.vld.VnfdConnectionPointRefBuilder.Vnfd
  *
  */
 @JsonDeserialize(as = VnfdConnectionPointRefImpl.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
+
 public interface VnfdConnectionPointRef
     extends
     ChildOf<Vld>,
