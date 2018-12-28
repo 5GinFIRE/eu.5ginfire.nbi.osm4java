@@ -764,16 +764,47 @@ public class OSM4Client {
 		
 	}	
 	
-	public void deleteNSInstance(String ns_instance_id) {
+	public ResponseEntity<String> deleteNSInstance(String ns_instance_id) {
 		RestTemplate restTemplate = new RestTemplate(requestFactory);
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("content-type", "application/json");
 		headers.add("accept", "application/json");
 		headers.add("Authorization", "Bearer " + this.getMANOAuthorizationBasicHeader());
-		HttpEntity<String> request = new HttpEntity<String>(headers);
-		ResponseEntity<String> entity = restTemplate.exchange(this.getMANOApiEndpoint() + "/osm/nslcm/v1/ns_instances/"+ns_instance_id, HttpMethod.DELETE, request,String.class);
-		JSONObject obj = new JSONObject(entity.getBody());
-		System.out.println(obj.toString());
+		HttpEntity<String> request = new HttpEntity<String>(headers);	
+		ResponseEntity<String> delete_ns_instance_entity = null;
+		try {
+			delete_ns_instance_entity = restTemplate.exchange(this.getMANOApiEndpoint() + "/osm/nslcm/v1/ns_instances/"+ns_instance_id, HttpMethod.DELETE, request, String.class);
+		} catch (RuntimeException e) {
+			if(delete_ns_instance_entity != null)
+			{
+				if (delete_ns_instance_entity.getStatusCode().series() == HttpStatus.Series.SERVER_ERROR) {
+					// handle SERVER_ERROR
+					System.out.println("Server ERROR:" + delete_ns_instance_entity.getStatusCode().toString());
+				} else if (delete_ns_instance_entity.getStatusCode().series() == HttpStatus.Series.CLIENT_ERROR) {
+					// handle CLIENT_ERROR
+					System.out.println("Client ERROR:" + delete_ns_instance_entity.getStatusCode().toString());
+					if (delete_ns_instance_entity.getStatusCode() == HttpStatus.NOT_FOUND) {
+						System.out.println("Unknown Response Status");
+					}
+				}
+				System.out.println("Error! " + delete_ns_instance_entity.getBody());
+			}
+			else
+			{
+				System.out.println("Error! Null Response");
+				System.out.println(e.getMessage());
+			}
+			return null;
+		}
+
+		if (delete_ns_instance_entity.getStatusCode() == HttpStatus.NO_CONTENT) {
+			System.out.println("No Content Replied!");
+		}
+		if (delete_ns_instance_entity.getStatusCode() == HttpStatus.CREATED) {
+			System.out.println("ΝS Deletion Succeded!");
+		}
+		System.out.println("The NS instance deletion response is :"+delete_ns_instance_entity.getBody());
+		return delete_ns_instance_entity;		
 	}	
 	
 	public Vnfd getVNFDbyID(String aVNFDid)
