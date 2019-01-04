@@ -944,6 +944,7 @@ public class OSM4Client {
 		ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 		try {
 			Nsd nsd = mapper.readValue(new YAMLFactory().createParser(response.getBody()), Nsd.class);
+			System.out.println(nsd.toString());
 			return nsd;
 		} catch (IllegalStateException | IOException e) {
 			logger.error(e.getMessage() );
