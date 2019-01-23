@@ -671,7 +671,7 @@ public class OSM4Client {
 	{
 		ResponseEntity<String> ns_instance_id_info_response = this.getOSMResponse("/osm/nslcm/v1/ns_instances/"+ns_instance_id);
 		logger.info("Status of Request: "+ns_instance_id_info_response.getStatusCode());
-		if(!ns_instance_id_info_response.getStatusCode().isError())
+		if(!ns_instance_id_info_response.getStatusCode().is4xxClientError() && !ns_instance_id_info_response.getStatusCode().is5xxServerError() )
 		{
 			JSONObject ns_instance_info_obj = new JSONObject(ns_instance_id_info_response.getBody());
 			return ns_instance_info_obj;		
