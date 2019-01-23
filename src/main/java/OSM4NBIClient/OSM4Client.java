@@ -149,8 +149,17 @@ public class OSM4Client {
 		headers.add("accept", "application/json");
 		headers.add("Authorization", "Bearer " + this.getMANOAuthorizationBasicHeader());
 		HttpEntity<String> request = new HttpEntity<String>(headers);
-		ResponseEntity<String> entity = restTemplate.exchange(this.getMANOApiEndpoint() + reqURL,
-				HttpMethod.GET, request, String.class);
+		ResponseEntity<String> entity = null; 
+		try
+		{
+			entity = restTemplate.exchange(this.getMANOApiEndpoint() + reqURL,
+					HttpMethod.GET, request, String.class);
+	    }
+    	catch (final HttpClientErrorException e) {    		
+    		entity = ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
+	        System.out.println(e.getStatusCode());
+	        System.out.println(e.getResponseBodyAsString());
+	    }		
 		return entity;
 	}
 
@@ -491,7 +500,7 @@ public class OSM4Client {
 			ex.printStackTrace();
 		}
 	}
-	
+
 	// Creates an NS Instance based on vim_id and nsd_id.
 	public String createNSInstance(String ns_name,String vim_id,String nsd_id)
 	{
@@ -657,7 +666,27 @@ public class OSM4Client {
 		return nsr_id;
 		
 	}	
+	
+	public JSONObject getNSInstanceInfo(String ns_instance_id)
+	{
+		ResponseEntity<String> ns_instance_id_info_response = this.getOSMResponse("/osm/nslcm/v1/ns_instances/"+ns_instance_id);
+		logger.info("Status of Request: "+ns_instance_id_info_response.getStatusCode());
+		if(!ns_instance_id_info_response.getStatusCode().isError())
+		{
+			JSONObject ns_instance_info_obj = new JSONObject(ns_instance_id_info_response.getBody());
+			return ns_instance_info_obj;		
+		}
+		else
+			return null;
+	}	
 
+	public JSONObject getVNFInstanceInfo(String vnf_instance_id)
+	{
+		ResponseEntity<String> ns_instance_id_info_response = this.getOSMResponse("/osm/nslcm/v1/vnf_instances/"+vnf_instance_id);		
+		JSONObject ns_instance_info_obj = new JSONObject(ns_instance_id_info_response.getBody());
+		return ns_instance_info_obj;		
+	}	
+	
 	public String instantiateNSInstance(String ns_instance_id, String ns_name, String vim_id, String nsd_id) {
 		RestTemplate restTemplate = new RestTemplate(requestFactory);
 		HttpHeaders headers = new HttpHeaders();
