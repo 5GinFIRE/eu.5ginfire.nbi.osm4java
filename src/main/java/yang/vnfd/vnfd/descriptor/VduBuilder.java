@@ -465,7 +465,6 @@ public class VduBuilder implements Builder<Vdu> {
         private final BigInteger _count;
         @JsonProperty("description")        
         private final String _description;
-        @JsonProperty("guest-epa")        
         private final GuestEpa _guestEpa;
         private final HostEpa _hostEpa;
         private final HypervisorEpa _hypervisorEpa;

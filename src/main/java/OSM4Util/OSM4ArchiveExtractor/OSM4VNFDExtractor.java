@@ -61,15 +61,21 @@ public class OSM4VNFDExtractor {
 					
 					ObjectMapper mapper = new ObjectMapper(new YAMLFactory());					
 					JsonNode tr = null;
-					// If the file is not empty
-					if ( !this.descriptorYAMLfile.equals("") ) {
-						// Search in yaml for vnfd:vnfd
-						tr = mapper.readTree( this.descriptorYAMLfile ).findValue("vnfd:vnfd");
-						// If there isn't any, search for vnfd
-						if ( tr == null ) {
-					    	tr = mapper.readTree( this.descriptorYAMLfile ).findValue("vnfd");
-				        }
-				    }                        
+					try {
+						// If the file is not empty
+						if ( !this.descriptorYAMLfile.equals("") ) {
+							// Search in yaml for vnfd:vnfd
+							tr = mapper.readTree( this.descriptorYAMLfile ).findValue("vnfd:vnfd");
+							// If there isn't any, search for vnfd
+							if ( tr == null ) {
+						    	tr = mapper.readTree( this.descriptorYAMLfile ).findValue("vnfd");
+					        }
+					    }    
+					}
+					catch(Exception e)
+					{
+						System.out.println("Cannot read file " + entry.getName());
+					}
 					    					   
 				    // If there is a node found
 					if ( tr != null ) {      
