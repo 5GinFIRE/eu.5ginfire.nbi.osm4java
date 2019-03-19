@@ -83,7 +83,8 @@ public class OSM4Client {
 		System.out.println("Make your calls here");	
 	}
 	
-	public OSM4Client(String apiEndpoint, String username, String password, String project_id) {
+	public OSM4Client(String apiEndpoint, String username, String password, String project_id) throws HttpStatusCodeException 
+	{
 		this.setMANOPassword(password);
 		this.setMANOUsername(username);
 		this.setMANOProjectId(project_id);
@@ -91,7 +92,7 @@ public class OSM4Client {
 		OSM4ClientInit();
 	}
 	
-	private void OSM4ClientInit()
+	private void OSM4ClientInit() throws HttpStatusCodeException
 	{
 		this.authenticateMANO();
 
@@ -848,7 +849,7 @@ public class OSM4Client {
 		return delete_ns_instance_entity;		
 	}	
 
-	public ResponseEntity<String> deleteNSInstanceNew(String ns_instance_id) {
+	public ResponseEntity<String> deleteNSInstanceNew(String ns_instance_id, boolean force) {
 		RestTemplate restTemplate = new RestTemplate(requestFactory);
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("content-type", "application/json");
@@ -856,7 +857,14 @@ public class OSM4Client {
 		headers.add("Authorization", "Bearer " + this.getMANOAuthorizationBasicHeader());
 		HttpEntity<String> request = new HttpEntity<String>(headers);	
 		try {
-			return restTemplate.exchange(this.getMANOApiEndpoint() + "/osm/nslcm/v1/ns_instances/"+ns_instance_id, HttpMethod.DELETE, request, String.class);
+			if(force)
+			{
+				return restTemplate.exchange(this.getMANOApiEndpoint() + "/osm/nslcm/v1/ns_instances/"+ns_instance_id+"?FORCE=TRUE", HttpMethod.DELETE, request, String.class);
+			}
+			else
+			{
+				return restTemplate.exchange(this.getMANOApiEndpoint() + "/osm/nslcm/v1/ns_instances/"+ns_instance_id, HttpMethod.DELETE, request, String.class);				
+			}
 		}
 		catch(HttpStatusCodeException e) 
 		{
@@ -955,7 +963,7 @@ public class OSM4Client {
 		return entity;
 	}
 	
-	public void authenticateMANO()
+	public void authenticateMANO() throws HttpStatusCodeException
     {
 //		if(OSM4Client.getManoAuthorizationTokenTimeout()>Instant.now().getEpochSecond()+120)
 //		{
@@ -1003,7 +1011,8 @@ public class OSM4Client {
         String body = "{\"password\": \"" + this.getMANOPassword() + "\", \"username\": \"" + this.getMANOUsername() + "\", \"project_id\": \"" + this.getMANOProjectId() + "\"}";
         HttpEntity<String> request = new HttpEntity<String>(body, headers);            
         System.out.println(request.toString());
-        ResponseEntity<String> entity = restTemplate.exchange(this.getMANOApiEndpoint()+"/osm/admin/v1/tokens/",HttpMethod.POST, request, String.class);
+        ResponseEntity<String> entity = null;
+    	entity = restTemplate.exchange(this.getMANOApiEndpoint()+"/osm/admin/v1/tokens/",HttpMethod.POST, request, String.class);        
         System.out.printf(entity.getHeaders().toString());
         System.out.printf(entity.getBody());
         System.out.printf(entity.toString());
