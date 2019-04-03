@@ -92,6 +92,22 @@ public class OSM4Client {
 		OSM4ClientInit();
 	}
 	
+	public void closeConn()
+	{
+		try {
+			this.requestFactory.destroy();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			this.httpClient.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	private void OSM4ClientInit() throws HttpStatusCodeException
 	{
 		this.authenticateMANO();
