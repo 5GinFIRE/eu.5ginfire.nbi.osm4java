@@ -95,14 +95,14 @@ public class OSM4Client {
 	public void closeConn()
 	{
 		try {
-			this.requestFactory.destroy();
-		} catch (Exception e) {
+			this.httpClient.close();
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		try {
-			this.httpClient.close();
-		} catch (IOException e) {
+			this.requestFactory.destroy();
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

@@ -459,7 +459,7 @@ public class VnfdBuilder implements Builder<Vnfd> {
         @JsonProperty("name")
         private final String _name;
         private final VnfOperationalStatus _operationalStatus;
-        @JsonProperty("placement-groups")
+        //@JsonProperty("placement-groups")
         private final List<PlacementGroups> _placementGroups;
         private final List<ScalingGroupDescriptor> _scalingGroupDescriptor;
         @JsonProperty("service-function-chain")

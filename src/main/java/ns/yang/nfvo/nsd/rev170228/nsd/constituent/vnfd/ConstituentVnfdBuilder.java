@@ -1,4 +1,4 @@
-package ns.yang.nfvo.nsd.rev170228.nsd.constituent.vnfd;
+		package ns.yang.nfvo.nsd.rev170228.nsd.constituent.vnfd;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableMap;

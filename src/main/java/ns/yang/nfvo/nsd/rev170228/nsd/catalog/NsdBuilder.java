@@ -524,7 +524,7 @@ public class NsdBuilder implements Builder<Nsd> {
         @JsonProperty("name")        
         private final String _name;
         private final List<ParameterPool> _parameterPool;
-        @JsonProperty("placement-groups")        
+        //@JsonProperty("placement-groups")        
         private final List<PlacementGroups> _placementGroups;
         @JsonProperty("scaling-group-descriptor")        
         private final List<ScalingGroupDescriptor> _scalingGroupDescriptor;
