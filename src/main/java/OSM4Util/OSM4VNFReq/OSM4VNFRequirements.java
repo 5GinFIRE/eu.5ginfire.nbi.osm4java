@@ -25,11 +25,13 @@ public class OSM4VNFRequirements {
         this.vcpuCount = 0;
         this.vmCount = 0;
 
-        for(Vdu vdu : descriptor.getVdu() ) {        	        
-            this.memoryMB +=  vdu.getCount().intValue()  * vdu.getVmFlavor().getMemoryMb().intValue();
-            this.storageGB += vdu.getCount().intValue() * vdu.getVmFlavor().getStorageGb().intValue();
-            this.vcpuCount += vdu.getCount().intValue() * 1;//vdu.getVmFlavor().getVcpuCount().intValue();
-            this.vmCount += vdu.getCount().intValue();
+        for(Vdu vdu : descriptor.getVdu() ) {        	    
+        	if (  vdu.getVmFlavor() != null ) {
+	            this.memoryMB +=  vdu.getCount().intValue()  * vdu.getVmFlavor().getMemoryMb().intValue();
+	            this.storageGB += vdu.getCount().intValue() * vdu.getVmFlavor().getStorageGb().intValue();
+	            this.vcpuCount += vdu.getCount().intValue() * 1;//vdu.getVmFlavor().getVcpuCount().intValue();
+	            this.vmCount += vdu.getCount().intValue();
+        	}
         }
     }
 
